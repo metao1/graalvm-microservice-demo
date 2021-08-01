@@ -1,0 +1,39 @@
+FROM debian:stable-slim as graalvm16-linux
+
+MAINTAINER "Mehrdad Karami"
+
+LABEL version="1.0"
+LABEL description="docker graalvm 16"
+
+ENV GRADLE_VERSION=gradle-7.1.1
+ENV GRAAL_VERSION=21.1.0
+ENV JDK_VERSION=java16
+
+RUN set -xeu \
+    && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates `# stays, not having this is just not useful` \
+        unzip \
+        gcc \
+        g++ \
+        libz-dev \
+        curl \
+
+    && mkdir /graalvm  \
+    && curl -fsSL "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${GRAAL_VERSION}/graalvm-ce-${JDK_VERSION}-linux-amd64-${GRAAL_VERSION}.tar.gz" \
+        | tar -zxC /graalvm --strip-components 1  \
+
+    && find /graalvm -name "*src.zip"  -printf "Deleting %p\n" -exec rm {} +  \
+    && { test ! -d /graalvm/legal || tar czf /graalvm/legal.tgz /graalvm/legal/; }  \
+    && { test ! -d /graalvm/legal || rm -r /graalvm/legal; }  \
+    && rm -rf /graalvm/man `# does not exist in java16 package`  \
+    && echo Cleaning up...  \
+    && apt-get autoremove -y  \
+    && apt-get clean \
+    && rm -r "/var/lib/apt/lists"/*  \
+    && echo 'PATH="/graalvm/bin:$PATH"' | install --mode 0644 /dev/stdin /etc/profile.d/graal-on-path.sh  \
+    && /graalvm/bin/gu install native-image  \
+    && curl -L https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip  -o /tmp/${GRADLE_VERSION}-bin.zip  \
+    && unzip -q /tmp/${GRADLE_VERSION}-bin.zip -d /usr/bin  \
+    && echo OK
