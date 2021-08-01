@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id "io.quarkus" version "2.0.1.Final"
+    id "application"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url "https://plugins.gradle.org/m2/"}
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
+    implementation 'io.quarkus:quarkus-reactive-messaging-http'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-resteasy'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+}
+
+configurations {
+    // for dependencies that are needed for development only
+    developmentOnly
+}
+
+test.classpath += configurations.developmentOnly
+
+group 'com.metao.graalvm.twitter.frontend'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+// use JUnit 5 platform
+test {
+    useJUnitPlatform()
+}
+

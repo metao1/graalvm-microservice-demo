@@ -1,0 +1,25 @@
+kafka:
+  bootstrap-servers:
+    - PLAINTEXT://localhost:9092
+  schema-registry-url: http://localhost:8081
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    interceptor-class: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+    topic:
+      name: test
+      partitions-num: 3
+      replication-factor: 1
+
+twitter:
+  topics: sport,germany,iran
+  consumerKey: "TWITTER_CONSUMER_KEY"
+  consumerSecret: "TWITTER_CONSUMER_SECRET"
+  token: "TWITTER_TOKEN"
+  secret: "TWITTER_TOKEN_SECRET"
+
+hazelcast-client:
+  properties:
+    hazelcast:
+      logging:
+        type: log4j2

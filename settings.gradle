@@ -1,0 +1,3 @@
+rootProject.name = 'graalvm-twitter-analyzer-demo'
+include 'post-analyzer-processor', 'post-analyzer-frontend', 'post-analyzer-api', 'post-analyzer-top-twitter-api'
+

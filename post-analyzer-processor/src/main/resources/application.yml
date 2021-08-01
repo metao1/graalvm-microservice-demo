@@ -1,0 +1,26 @@
+
+kafka:
+  bootstrap-servers:
+    - PLAINTEXT://localhost:9092
+  schema-registry-url: http://confluent-schema-registry.ict-kafka-management:8081
+  consumer:
+    group-id: grp-twitter
+    auto-reset: true
+    enable-auto-commit: false
+    auto-offset-reset: earliest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    interceptor-class: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+    topic:
+      name: test
+      partitions-num: 3
+      replication-factor: 1
+
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    interceptor-class: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+    topic:
+      name: test-in-0
+      partitions-num: 3
+      replication-factor: 1

@@ -1,0 +1,40 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+ext {
+    hazelcastJetVersion = '4.5'
+    lombokVersion = '1.18.20'
+}
+
+group 'com.metao.graalvm.twitter.api'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '16'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation "org.springframework.boot:spring-boot-devtools"
+
+    implementation "com.hazelcast.jet:hazelcast-jet-kafka:${hazelcastJetVersion}"
+    implementation "com.hazelcast.jet:hazelcast-jet:${hazelcastJetVersion}"
+
+    /* Twitter client*/
+    implementation 'com.twitter:hbc-core:2.2.0'
+
+    /*Lombok*/
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
