@@ -14,7 +14,9 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '16'
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven { url 'https://repo.spring.io/release' }
 }
 
 dependencies {
@@ -31,6 +33,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+bootBuildImage {
+    builder = "paketobuildpacks/builder:tiny"
+    environment = [
+            "BP_NATIVE_IMAGE" : "true"
+    ]
+    buildpacks = ["gcr.io/paketo-buildpacks/java-native-image:5.5.0"]
+}
+
 test {
     useJUnitPlatform()
 }
+
