@@ -5,9 +5,10 @@ MAINTAINER "Mehrdad Karami"
 LABEL version="1.0"
 LABEL description="docker graalvm 16"
 
-ENV GRADLE_VERSION=gradle-7.1.1
-ENV GRAAL_VERSION=21.1.0
-ENV JDK_VERSION=java16
+ARG GRADLE_VERSION=gradle-7.1.1
+ARG GRAAL_VERSION=21.1.0
+ARG JDK_VERSION=java16
+ARG RUN_JAVA_VERSION=1.3.8
 
 RUN set -xeu \
     && export DEBIAN_FRONTEND=noninteractive \
@@ -31,9 +32,16 @@ RUN set -xeu \
     && echo Cleaning up...  \
     && apt-get autoremove -y  \
     && apt-get clean \
-    && rm -r "/var/lib/apt/lists"/*  \
+    && rm -r "/var/lib/apt/lists"/* \
+    && mkdir /deployments \
+    && chown 1001 /deployments \
+    && chmod "g+rwX" /deployments \
+    && chown 1001:root /deployments \
+    && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o /deployments/run-java.sh \
+    && chown 1001 /deployments/run-java.sh \
+    && chmod 540 /deployments/run-java.sh \
+    && mkdir -p /etc/alternatives/jre/lib/security \
+    && echo "securerandom.source=file:/dev/urandom" >> /etc/alternatives/jre/lib/security/java.security \
     && echo 'PATH="/graalvm/bin:$PATH"' | install --mode 0644 /dev/stdin /etc/profile.d/graal-on-path.sh  \
     && /graalvm/bin/gu install native-image  \
-    && curl -L https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip  -o /tmp/${GRADLE_VERSION}-bin.zip  \
-    && unzip -q /tmp/${GRADLE_VERSION}-bin.zip -d /usr/bin  \
     && echo OK
