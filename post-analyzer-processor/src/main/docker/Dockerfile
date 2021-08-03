@@ -18,6 +18,8 @@ RUN cd src \
 
 RUN native-image -jar post-analyzer-processor.jar post-analyzer-processor
 
+RUN rm -rf post-analyzer-processor.jar \
+    && rm -rf ~/.gradle
 
 FROM post-analyzer-processer as runner
 
