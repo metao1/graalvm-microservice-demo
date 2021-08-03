@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.api;
+package com.metao.graalvm.twitter.api.source;
 
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.jet.JetInstance;
@@ -6,6 +6,8 @@ import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamSource;
+import com.metao.graalvm.twitter.api.configuration.KafkaTurboConfiguration;
+import com.metao.graalvm.twitter.api.configuration.TwitterKafkaProducerConfiguration;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;

@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.api;
+package com.metao.graalvm.twitter.api.configuration;
 
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;

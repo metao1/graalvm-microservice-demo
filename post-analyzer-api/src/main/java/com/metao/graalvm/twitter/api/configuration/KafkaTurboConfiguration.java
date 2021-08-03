@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.api;
+package com.metao.graalvm.twitter.api.configuration;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
