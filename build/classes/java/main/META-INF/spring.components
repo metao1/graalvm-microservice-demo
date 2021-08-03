@@ -1,0 +1,1 @@
+com.metao.graalvm.storage.api.BookStorageApiApplication=org.springframework.stereotype.Component,org.springframework.boot.SpringBootConfiguration
