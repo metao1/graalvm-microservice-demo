@@ -1,26 +1,29 @@
-FROM graalvm16-linux as post-analyzer-processer
+FROM openjdk:16-slim as builder
 
-ENV JAVA_HOME=/graalvm/
-ENV PATH=$PATH:$JAVA_HOME/bin
+WORKDIR code
 
-WORKDIR /code
+RUN curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o /opt/run-java.sh
+    && mkdir -p /opt/topclu \
+    && mkdir -p /var/log/topclu
 
 COPY . .
 
-RUN curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o run-java.sh
+RUN chmod +x gradlew
 
-RUN chmod +x gradlew \
+RUN rm -rf build \
+    && sleep 1 \
     && ./gradlew clean build \
-    && cp build/libs/*-SNAPSHOT.jar app.jar
+    && cp build/libs/*-SNAPSHOT.jar /opt/app.jar
 
-FROM post-analyzer-processer as runner
+
+FROM openjdk:16-slim as runner
 
 WORKDIR /application
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
-COPY --from=post-analyzer-processer /code/app.jar /application/app.jar
-COPY --from=post-analyzer-processer /code/run-java.sh /application/run-java.sh
+COPY --from=builder /opt/app.jar /application/app.jar
+COPY --from=builder /opt/run-java.sh /application/run-java.sh
 
 RUN   chown 1001 /application \
     && chmod "g+rwX" /application \
@@ -35,4 +38,4 @@ USER 1001
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/bin/run-java.sh" ]
+ENTRYPOINT [ "/application/run-java.sh" ]

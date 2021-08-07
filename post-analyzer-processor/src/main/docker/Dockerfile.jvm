@@ -1,25 +1,19 @@
-FROM graalvm16-linux as post-analyzer-processer
-
-ENV JAVA_HOME=/graalvm/
-ENV PATH=$PATH:$JAVA_HOME/bin
+FROM openjdk:16-slim as post-analyzer-processer
 
 WORKDIR /code
 
 COPY . .
 
 RUN chmod +x gradlew \
-    && rm -rf build \
     && ./gradlew clean build \
     && cp build/libs/*-SNAPSHOT.jar app.jar \
     && rm -rf build src gradle ~/.gradle
 
-RUN native-image -jar app.jar post-analyzer-processor
-
-RUN rm -rf ~/.gradle
-
 FROM post-analyzer-processer as runner
 
-USER 1001
+WORKDIR /application
+
+COPY --from=post-analyzer-processer /code/app.jar /application/app.jar
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JAVA_OPTS="-Xms256m -Xmx2048m" \
@@ -28,7 +22,8 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 
 EXPOSE 8080
 
-CMD echo "The twitter post processor will start in ${SLEEP}s..." && \
+CMD echo "The post analyzer processor api will start in ${SLEEP}s..." && \
     sleep ${SLEEP} && \
-    ./post-analyzer-processor
-
+    java \
+        ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom \
+        -jar /application/app.jar

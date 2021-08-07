@@ -1,39 +1,37 @@
-FROM debian:stable-slim as graalvm16-linux
+FROM graalvm16-linux as post-analyzer-processer
 
-MAINTAINER "Mehrdad Karami"
+ENV JAVA_HOME=/graalvm/
+ENV PATH=$PATH:$JAVA_HOME/bin
 
-LABEL version="1.0"
-LABEL description="docker graalvm 16"
+WORKDIR ~/app/post-analyzer-processor
 
-ENV GRADLE_VERSION=gradle-7.1.1
-ENV GRAAL_VERSION=21.1.0
-ENV JDK_VERSION=java16
+RUN mkdir src
 
-RUN set -xeu \
-    && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        ca-certificates `# stays, not having this is just not useful` \
-        unzip \
-        gcc \
-        g++ \
-        libz-dev \
-        curl \
+COPY . src
 
-    && mkdir /graalvm  \
-    && curl -fsSL "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-${GRAAL_VERSION}/graalvm-ce-${JDK_VERSION}-linux-amd64-${GRAAL_VERSION}.tar.gz" \
-        | tar -zxC /graalvm --strip-components 1  \
+RUN cd src \
+    && chmod +x gradlew \
+    && rm -rf build \
+    && ./gradlew clean build \
+    && cp build/libs/*-SNAPSHOT.jar ../post-analyzer-processor.jar \
+    && rm -rf *
 
-    && find /graalvm -name "*src.zip"  -printf "Deleting %p\n" -exec rm {} +  \
-    && { test ! -d /graalvm/legal || tar czf /graalvm/legal.tgz /graalvm/legal/; }  \
-    && { test ! -d /graalvm/legal || rm -r /graalvm/legal; }  \
-    && rm -rf /graalvm/man `# does not exist in java16 package`  \
-    && echo Cleaning up...  \
-    && apt-get autoremove -y  \
-    && apt-get clean \
-    && rm -r "/var/lib/apt/lists"/*  \
-    && echo 'PATH="/graalvm/bin:$PATH"' | install --mode 0644 /dev/stdin /etc/profile.d/graal-on-path.sh  \
-    && /graalvm/bin/gu install native-image  \
-    && curl -L https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip  -o /tmp/${GRADLE_VERSION}-bin.zip  \
-    && unzip -q /tmp/${GRADLE_VERSION}-bin.zip -d /usr/bin  \
-    && echo OK
+RUN native-image -jar post-analyzer-processor.jar post-analyzer-processor
+
+RUN rm -rf ~/.gradle
+
+FROM post-analyzer-processer as runner
+
+USER 1001
+
+ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
+    JAVA_OPTS="-Xms256m -Xmx2048m" \
+    SLEEP=1 \
+    SPRING_PROFILES_ACTIVE=prod
+
+EXPOSE 8080
+
+CMD echo "The twitter post processor will start in ${SLEEP}s..." && \
+    sleep ${SLEEP} && \
+    ./post-analyzer-processor
+
