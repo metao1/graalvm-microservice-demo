@@ -33,8 +33,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
       KAFKA_JMX_PORT: 9991
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka101:29092
-      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper1:2181
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'false'
       KAFKA_HEAP_OPTS: '-Xmx512M -Xms512M'
@@ -42,19 +42,6 @@ services:
       - kafka-data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-
-  jmx-kafka:
-    image: "sscaling/jmx-prometheus-exporter"
-    ports:
-      - "5556:5556"
-    environment:
-      CONFIG_YML: "/etc/jmx_exporter/config.yml"
-      JVM_OPTS: "-Xmx512M"
-    volumes:
-      - ./etc/jmx_exporter/config_kafka.yml:/etc/jmx_exporter/config.yml
-    container_name: jmx-kafka
-    depends_on:
-      - kafka
 
 volumes:
   zookeeper-data:

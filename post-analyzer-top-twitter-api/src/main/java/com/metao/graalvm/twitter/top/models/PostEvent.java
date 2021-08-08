@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.top;
+package com.metao.graalvm.twitter.top.models;
 
 import lombok.Data;
 

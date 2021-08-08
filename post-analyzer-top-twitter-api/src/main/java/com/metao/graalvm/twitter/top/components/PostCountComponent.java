@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.top;
+package com.metao.graalvm.twitter.top.components;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;

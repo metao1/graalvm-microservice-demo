@@ -1,5 +1,6 @@
-package com.metao.graalvm.twitter.top;
+package com.metao.graalvm.twitter.top.controllers;
 
+import com.metao.graalvm.twitter.top.components.PostCountComponent;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

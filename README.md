@@ -76,7 +76,10 @@ This is very efficient when developing more sub-projects since one need
 to derive the base-docker image and just add few lines of Docker code to 
 make the project native image compatible!
 
+### Deployment steps
 
-
+```
+docker-compose -f monitoring/fullstack/zk-kafka-single-node-full-stack.yml up -d
+```
 
 

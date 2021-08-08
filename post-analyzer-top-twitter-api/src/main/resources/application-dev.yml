@@ -1,0 +1,22 @@
+spring.cloud.stream.kafka.streams.binder.configuration.commit.interval.ms: 1000
+spring.cloud.stream.kafka.streams.binder.deserializationExceptionHandler: sendToDlq
+spring.cloud.stream.bindings.process_out:
+  destination: count
+spring.cloud.stream.bindings.process_in:
+  destination: test
+spring.cloud.stream.kafka.streams.binder:
+  brokers: localhost
+  configuration:
+    schema.registry.url: http://localhost:8081
+    commit.interval.ms: 1000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+      discovery:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

@@ -27,6 +27,8 @@ services:
     container_name: grafana
     depends_on:
      - prometheus
+    networks:
+      - monitoring
 
   prometheus:
     image: "prom/prometheus"
@@ -36,19 +38,8 @@ services:
      - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command: "--config.file=/etc/prometheus/prometheus.yml"
     container_name: prometheus
-
-  jmx-kafka101:
-    image: "sscaling/jmx-prometheus-exporter"
-    ports:
-     - "5556:5556"
-    environment:
-     CONFIG_YML : "/etc/jmx_exporter/config.yml"
-     JVM_OPTS: "-Xmx512M" 
-    volumes:
-     - ./etc/jmx_exporter/config_spring_stream.yml:/etc/jmx_exporter/config.yml
-    container_name: jmx-kafka101
-    depends_on:
-     - kafka101
+    networks:
+      - monitoring
 
   zk1:
     image: confluentinc/cp-zookeeper:latest
@@ -58,21 +49,26 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
     ports:
-     - 2181:2181
+     - "2181:2181"
     container_name: zookeeper1
+    networks:
+      - proxy-net
 
-  post-analyzer-top-twitter-api:
-    image: post-analyzer-top-twitter-api:latest
-    hostname: post-analyzer-top-twitter-api
+  jmx-kafka101:
+    image: "sscaling/jmx-prometheus-exporter"
+    ports:
+      - "5556:5556"
+    environment:
+      CONFIG_YML : "/etc/jmx_exporter/config.yml"
+      JVM_OPTS: "-Xmx512M"
+    volumes:
+      - ./etc/jmx_exporter/config_spring_stream.yml:/etc/jmx_exporter/config.yml
+    container_name: jmx-kafka101
     depends_on:
       - kafka101
-      - prometheus
-    container_name: post-analuzer-top-twitter-api
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_APPLICATION_NAME: post-analyzer-twitter-api
-      SPRING_CLOUD_STREAM_KAFKA_STREAMS_BINDER_BROKERS: kafka101
+    networks:
+      - proxy-net
+      - monitoring
 
   kafka101:
     image: confluentinc/cp-kafka:latest
@@ -80,8 +76,8 @@ services:
     depends_on:
       - zk1
     ports:
-      - 9092:9092
-      - 9991:9991
+      - "9092:9092"
+      - "9991:9991"
     container_name: kafka101
     environment:
       KAFKA_BROKER_ID: 101
@@ -98,3 +94,27 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'false'
       KAFKA_HEAP_OPTS: '-Xmx512M -Xms512M'
+    networks:
+      - proxy-net
+
+#  post-analyzer-top-twitter-api:
+#    container_name: post-analyzer-top-twitter-api
+#    image: post-analyzer-top-twitter-api:latest
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=prod
+#      - SPRING_APPLICATION_NAME=post-analyzer-top-twitter-api
+#      - SPRING_APPLICATION_NAME=post-analyzer-twitter-api
+#      - SPRING_CLOUD_STREAM_KAFKA_STREAMS_BINDER_BROKERS=kafka101
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - kafka101
+#    networks:
+#      - proxy-net
+
+networks:
+  monitoring:
+    driver: bridge
+  proxy-net:
+    driver: bridge
+

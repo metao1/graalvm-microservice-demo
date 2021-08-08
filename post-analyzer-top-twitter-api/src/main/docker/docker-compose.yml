@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  post-analyzer-top-twitter-api:
+    container_name: post-analyzer-top-twitter-api
+    build:
+      context: ../../../
+      dockerfile: src/main/docker/Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=post-analyzer-top-twitter-api
+      - SPRING_APPLICATION_NAME=post-analyzer-twitter-api
+      - SPRING_CLOUD_STREAM_KAFKA_STREAMS_BINDER_BROKERS=kafka101
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka101
+      - busybox
+    networks:
+      - backend-tier
+
+  busybox:
+    image: busybox:latest
+    networks:
+      - backend-tier
+    command: "ping -c2 kafka101"
+    working_dir: /
+
+networks:
+  backend-tier:
+    external: true
+    name: fullstack_proxy-net
+
