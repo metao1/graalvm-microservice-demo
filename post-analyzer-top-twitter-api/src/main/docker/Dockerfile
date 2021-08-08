@@ -1,30 +1,19 @@
-FROM graalvm16-linux as post-analyzer-top-twitter-api
+FROM openjdk:16-slim as post-analyzer-top-twitter-api
 
-ENV JAVA_HOME=/graalvm/
-ENV GRADLE_HOME=/usr/bin/${GRADLE_VERSION}
-ENV PATH=$PATH:$GRADLE_HOME/bin
-ENV PATH=$PATH:$JAVA_HOME/bin
+WORKDIR /code
 
-WORKDIR ~/app/post-analyzer-top-twitter-api
+COPY . .
 
-RUN mkdir src
-
-COPY . src
-
-RUN cd src \
-    && chmod +x gradlew \
-    && rm -rf build \
+RUN chmod +x gradlew \
     && ./gradlew clean build \
-    && cp build/libs/*-SNAPSHOT.jar ../post-analyzer-top-twitter-api.jar \
-    && rm -rf *
-
-RUN native-image -jar post-analyzer-top-twitter-api.jar post-analyzer-top-twitter-api
-
-RUN rm -rf ~/.gradle
+    && cp build/libs/*-SNAPSHOT.jar app.jar \
+    && rm -rf build src gradle ~/.gradle
 
 FROM post-analyzer-top-twitter-api as runner
 
-USER 1001
+WORKDIR /application
+
+COPY --from=post-analyzer-top-twitter-api /code/app.jar /application/app.jar
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JAVA_OPTS="-Xms256m -Xmx2048m" \
@@ -33,6 +22,8 @@ ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 
 EXPOSE 8080
 
-CMD echo "The post-analyzer-top-twitter-api will start in ${SLEEP}s..." && \
+CMD echo "The post analyzer top twitter api will start in ${SLEEP}s..." && \
     sleep ${SLEEP} && \
-    ./post-analyzer-top-twitter-api
+    java \
+        ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom \
+        -jar /application/app.jar

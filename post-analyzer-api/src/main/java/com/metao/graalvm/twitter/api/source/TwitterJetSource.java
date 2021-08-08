@@ -100,8 +100,8 @@ public class TwitterJetSource {
         String consumerSecret = twitterProps.getConsumerSecret();
         twitterProperties.setProperty("consumerKey", consumerKey);
         twitterProperties.setProperty("consumerSecret", consumerSecret);
-        twitterProperties.setProperty("token", twitterProps.getToken());
-        twitterProperties.setProperty("tokenSecret", twitterProps.getSecret());
+        twitterProperties.setProperty("token", environment.getProperty("TWITTER_TOKEN"));
+        twitterProperties.setProperty("tokenSecret", environment.getProperty("TWITTER_TOKEN_SECRET"));
         return twitterProperties;
     }
 }

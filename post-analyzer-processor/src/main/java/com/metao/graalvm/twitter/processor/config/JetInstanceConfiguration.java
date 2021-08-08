@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.processor;
+package com.metao.graalvm.twitter.processor.config;
 
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;

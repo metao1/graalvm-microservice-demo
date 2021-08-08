@@ -12,7 +12,7 @@ kafka:
       replication-factor: 1
 
 twitter:
-  topics: sport,germany,iran
+  topics: iran
   consumerKey: "TWITTER_CONSUMER_KEY"
   consumerSecret: "TWITTER_CONSUMER_SECRET"
   token: "TWITTER_TOKEN"

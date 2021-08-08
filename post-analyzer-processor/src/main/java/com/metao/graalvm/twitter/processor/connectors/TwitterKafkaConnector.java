@@ -1,13 +1,14 @@
-package com.metao.graalvm.twitter.processor;
+package com.metao.graalvm.twitter.processor.connectors;
 
 
 import com.hazelcast.core.HazelcastJsonValue;
-import com.hazelcast.function.FunctionEx;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.metao.graalvm.twitter.processor.utils.KafkaUtils;
+import com.metao.graalvm.twitter.processor.config.KafkaTurboConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

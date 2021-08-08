@@ -1,4 +1,4 @@
-package com.metao.graalvm.twitter.processor;
+package com.metao.graalvm.twitter.processor.utils;
 
 import com.hazelcast.core.HazelcastJsonValue;
 import com.hazelcast.jet.Util;

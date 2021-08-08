@@ -145,7 +145,7 @@ public final class TwitterSource implements Serializable {
 
         private void close() {
             if (client != null) {
-                client.stop(100);
+                client.stop(0);
             }
         }
     }

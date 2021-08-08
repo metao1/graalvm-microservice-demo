@@ -1,6 +1,5 @@
 package com.metao.graalvm.twitter.top;
 
-import org.apache.kafka.common.serialization.Serdes;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
