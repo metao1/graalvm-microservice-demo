@@ -78,8 +78,16 @@ make the project native image compatible!
 
 ### Deployment steps
 
+Running monitoring services
+
 ```
-docker-compose -f monitoring/fullstack/zk-kafka-single-node-full-stack.yml up -d
+    docker-compose -f monitoring/fullstack/zk-kafka-single-node-full-stack.yml up -d
+```
+
+Running backend services
+
+```
+    docker-compose -f post-analyzer-top-twitter-api/src/main/docker/docker-compose.yml up -d
 ```
 
 

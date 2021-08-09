@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public final class TwitterSource implements Serializable {
 
@@ -65,8 +66,8 @@ public final class TwitterSource implements Serializable {
     }
 
     private static final class TwitterStreamSourceContext implements Serializable {
-        private static final int QUEUE_CAPACITY = 1000;
-        private static final int MAX_FILL_ELEMENTS = 250;
+        private static final int QUEUE_CAPACITY = 1;
+        private static final int MAX_FILL_ELEMENTS = 1;
         private final ILogger log;
         private final BasicClient client;
         private final BlockingQueue<String> queue;
@@ -84,7 +85,7 @@ public final class TwitterSource implements Serializable {
             log.info("successfully connected to twitter api!");
         }
 
-        private void fillBuffer(SourceBuilder.SourceBuffer<String> sourceBuffer) {
+        private void fillBuffer(SourceBuilder.SourceBuffer<String> sourceBuffer) throws InterruptedException {
             queue.drainTo(buffer, MAX_FILL_ELEMENTS);
             for (String item : buffer) {
                 sourceBuffer.add(item);
@@ -92,8 +93,9 @@ public final class TwitterSource implements Serializable {
             buffer.clear();
         }
 
-        private void fillTimestampedBuffer(SourceBuilder.TimestampedSourceBuffer<String> sourceBuffer) {
+        private void fillTimestampedBuffer(SourceBuilder.TimestampedSourceBuffer<String> sourceBuffer) throws InterruptedException {
             queue.drainTo(buffer, MAX_FILL_ELEMENTS);
+            TimeUnit.SECONDS.sleep(5);
             for (String item : buffer) {
                 try {
                     JsonObject jsonNode = Json.parse(item).asObject();
