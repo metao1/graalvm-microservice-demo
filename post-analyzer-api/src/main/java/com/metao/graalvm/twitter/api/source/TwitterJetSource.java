@@ -1,19 +1,15 @@
 package com.metao.graalvm.twitter.api.source;
 
-import com.hazelcast.function.FunctionEx;
 import com.hazelcast.internal.json.Json;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.kafka.KafkaSinks;
-import com.hazelcast.jet.pipeline.GeneralStage;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamSource;
-import com.hazelcast.jet.pipeline.StreamStage;
 import com.metao.graalvm.twitter.api.configuration.KafkaTurboConfiguration;
 import com.metao.graalvm.twitter.api.configuration.TwitterKafkaProducerConfiguration;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.metrics.stats.Rate;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -70,15 +66,14 @@ public class TwitterJetSource {
 
         final StreamSource<String> streamingEndpoint = TwitterSource.streamTimestamp(
                 twitterProps, () -> new StatusesFilterEndpoint().trackTerms(terms));
-        //FunctionEx<StreamStage<String>, StreamStage<String>> throttle = rateLimiter.throttle(1);
+
         pipeline.readFrom(streamingEndpoint)
                 .withNativeTimestamps(0)
                 .peek()
                 .filter(Objects::nonNull)
-                //.apply(throttle)
                 .map(rawJson -> Json.parse(rawJson)
                         .asObject()
-                        .getString("text", null))
+                        .toString())
                 .writeTo(KafkaSinks.kafka(loadKafkaProps(), sinkTopic, (key) -> key, (value) -> value));
 
         try {
@@ -89,6 +84,7 @@ public class TwitterJetSource {
     }
 
     private Properties loadKafkaProps() {
+        
         Properties properties = new Properties();
         String bootstrapServers = String.join(", ", kafkaTurboConfiguration.getBootstrapServers());
         String keySerializerClass = kafkaTurboConfiguration.getProducer().getKeySerializer();

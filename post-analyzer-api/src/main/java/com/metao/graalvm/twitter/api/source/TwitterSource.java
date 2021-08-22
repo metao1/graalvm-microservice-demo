@@ -15,10 +15,8 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
+import lombok.NonNull;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public final class TwitterSource implements Serializable {
 
@@ -34,20 +31,20 @@ public final class TwitterSource implements Serializable {
     }
 
     public static StreamSource<String> stream(
-            @Nonnull Properties credential,
-            @Nonnull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
+            @NonNull Properties credential,
+            @NonNull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
         return stream(credential, Constants.STREAM_HOST, endpointSupplier);
     }
 
     public static StreamSource<String> streamTimestamp(
-            @Nonnull Properties credentials,
-            @Nonnull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
+            @NonNull Properties credentials,
+            @NonNull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
         return timestampedStream(credentials, Constants.STREAM_HOST, endpointSupplier);
     }
 
-    private static StreamSource<String> timestampedStream(@Nonnull Properties credentials,
-                                                          @Nonnull String streamHost,
-                                                          @Nonnull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
+    private static StreamSource<String> timestampedStream(@NonNull Properties credentials,
+                                                          @NonNull String streamHost,
+                                                          @NonNull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
         return SourceBuilder.timestampedStream("twitter-timestamp-source-builder",
                         ctx -> new TwitterStreamSourceContext(credentials, streamHost, ctx.logger(), endpointSupplier))
                 .fillBufferFn(TwitterStreamSourceContext::fillTimestampedBuffer)
@@ -55,9 +52,9 @@ public final class TwitterSource implements Serializable {
                 .build();
     }
 
-    private static StreamSource<String> stream(@Nonnull Properties credential,
-                                               @Nonnull String streamHost,
-                                               @Nonnull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
+    private static StreamSource<String> stream(@NonNull Properties credential,
+                                               @NonNull String streamHost,
+                                               @NonNull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
         return SourceBuilder.stream("twitter-source-builder",
                         ctx -> new TwitterStreamSourceContext(credential, streamHost, ctx.logger(), endpointSupplier))
                 .fillBufferFn(TwitterStreamSourceContext::fillBuffer)
@@ -73,10 +70,10 @@ public final class TwitterSource implements Serializable {
         private final BlockingQueue<String> queue;
         private final List<String> buffer = new ArrayList<>(MAX_FILL_ELEMENTS);
 
-        TwitterStreamSourceContext(@Nonnull Properties credential,
-                                   @Nonnull String streamHost,
-                                   @Nonnull ILogger logger,
-                                   @Nonnull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
+        TwitterStreamSourceContext(@NonNull Properties credential,
+                                   @NonNull String streamHost,
+                                   @NonNull ILogger logger,
+                                   @NonNull SupplierEx<? extends StreamingEndpoint> endpointSupplier) {
             checkTwitterCreds(credential);
             log = logger;
             queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
@@ -85,7 +82,7 @@ public final class TwitterSource implements Serializable {
             log.info("successfully connected to twitter api!");
         }
 
-        private void fillBuffer(SourceBuilder.SourceBuffer<String> sourceBuffer) throws InterruptedException {
+        private void fillBuffer(SourceBuilder.SourceBuffer<String> sourceBuffer) {
             queue.drainTo(buffer, MAX_FILL_ELEMENTS);
             for (String item : buffer) {
                 sourceBuffer.add(item);
@@ -93,9 +90,8 @@ public final class TwitterSource implements Serializable {
             buffer.clear();
         }
 
-        private void fillTimestampedBuffer(SourceBuilder.TimestampedSourceBuffer<String> sourceBuffer) throws InterruptedException {
+        private void fillTimestampedBuffer(SourceBuilder.TimestampedSourceBuffer<String> sourceBuffer) {
             queue.drainTo(buffer, MAX_FILL_ELEMENTS);
-            TimeUnit.SECONDS.sleep(5);
             for (String item : buffer) {
                 try {
                     JsonObject jsonNode = Json.parse(item).asObject();

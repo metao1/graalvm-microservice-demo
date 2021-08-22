@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+}
+
+group 'com.metao.http'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext {
+    lombokVersion = '1.18.20'
+    okhttpVersion = '4.9.1'
+    jupiterVersion = '5.7.0'
+}
+
+sourceCompatibility = '16'
+
+
+dependencies {
+
+    /** Okhttp client*/
+    implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+
+    /** Lombok */
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    /** Slf4j api module */
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+
+    /** Jupiter */
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${jupiterVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
