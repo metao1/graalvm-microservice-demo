@@ -1,11 +1,13 @@
 package com.metao.http;
 
+import com.metao.http.utils.HttpUtil;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 public final class HttpClientAgent extends HttpClientBase {
 
     private static final MediaType FORM_URL_ENCODED = MediaType.parse("application/x-www-form-urlencoded");
+    private static final MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
+    private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
     private static final long TIMEOUT = 10000;
     private static final long CACHE_TTL = 10;
     private static final int MAX_CONNECTIONS = 5;
@@ -56,8 +60,31 @@ public final class HttpClientAgent extends HttpClientBase {
 
     private RequestBody getRequestBody(HttpRequest req) {
         HttpParameter[] parameters = req.getParameters();
-        RequestBody requestBody = RequestBody.create(HttpParameter.encodeParams(parameters), FORM_URL_ENCODED);
-        return requestBody;
+        boolean containsFile = HttpParameter.containsFile(parameters);
+        if (containsFile) {
+            final String fileBoundary = "----Http-Upload----" + System.currentTimeMillis();
+            MultipartBody.Builder multipart = new MultipartBody.Builder(fileBoundary).setType(MultipartBody.FORM);
+            for (HttpParameter parameter : parameters) {
+                if (parameter.isFile()) {
+                    Headers headers = Headers.of("Content-Disposition", "form-data; name=\"" + parameter.getName() + "\"; filename=\"" + parameter.getFile().getName() + "\"");
+                    if (parameter.hasFileBody()) {
+                        multipart.addPart(headers, HttpUtil.createRequestBodyFromInputStream(MediaType.parse(parameter.getContentType()), parameter.getFileBody()));
+                    } else {
+                        multipart.addPart(headers, RequestBody.create(parameter.getFile(), MediaType.parse(parameter.getContentType())));
+                    }
+                } else {
+                    Headers headers = Headers.of("Content-Disposition", "form-data; name=\"" + parameter.getName() + "\"");
+                    RequestBody requestBody = RequestBody.create(parameter.getValue().getBytes(StandardCharsets.UTF_8), TEXT);
+                    multipart.addPart(headers, requestBody);
+                }
+            }
+            return multipart.build();
+        } else if (HttpParameter.containsJson(req.getParameters())) {
+            String jsonStringFromParams = HttpUtil.createJsonStringFromParams(req.getParameters());
+            return RequestBody.create(jsonStringFromParams, APPLICATION_JSON);
+        } else {
+            return RequestBody.create(HttpParameter.encodeParams(parameters), FORM_URL_ENCODED);
+        }
     }
 
     private Headers getHeaders(@NonNull HttpRequest req) {

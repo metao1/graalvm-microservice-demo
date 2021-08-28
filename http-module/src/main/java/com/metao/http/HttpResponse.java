@@ -1,8 +1,5 @@
 package com.metao.http;
 
-import java.util.List;
-import java.util.Map;
-
 public abstract class HttpResponse {
 
     protected int statusCode;
@@ -10,6 +7,8 @@ public abstract class HttpResponse {
 
     protected abstract String getHeader(String name);
 
-    protected abstract Map<String, List<String>> getResponseHeadersMap();
+    protected abstract void storeResponseHeaders();
+
+    protected abstract void storeResponseBody();
 
 }

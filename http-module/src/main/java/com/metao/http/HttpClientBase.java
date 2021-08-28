@@ -1,13 +1,20 @@
 package com.metao.http;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public abstract class HttpClientBase implements HttpClient {
     private final Map<String, String> reqHeaders;
+    private final Map<String, List<String>> resHeaders;
 
     protected HttpClientBase() {
         this.reqHeaders = new HashMap<>();
+        this.resHeaders = new LinkedHashMap<>();
         this.reqHeaders.put("X-Twitter-Client-Version", Version.getVersion());
         this.reqHeaders.put("X-Twitter-Client", Version.getClient());
     }
@@ -22,6 +29,10 @@ public abstract class HttpClientBase implements HttpClient {
     @Override
     public Map<String, String> getRequestHeaders() {
         return reqHeaders;
+    }
+
+    protected void storeResponseHeader(Map<String, List<String>> responseHeadersMap) {
+        resHeaders.putAll(responseHeadersMap);
     }
 
     @Override
