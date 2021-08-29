@@ -31,7 +31,8 @@ class HttpClientBuilderTest {
     void getWithParam() throws HttpRequestException {
         HttpClientAgent clientAgent = new HttpClientBuilder()
                 .build();
-        HttpResponse httpResponse = clientAgent.get("https://api.twitter.com/1/statuses/oembed.json", new HttpParameter[]{new HttpParameter("id", "1424535306225831944")}, null, null);
+        HttpParameter[] httpParameters =  new HttpParameter[]{new HttpParameter("id", "1424535306225831944")};
+        HttpResponse httpResponse = clientAgent.get("https://api.twitter.com/1/statuses/oembed.json", httpParameters, null, null);
         assertEquals(200, httpResponse.getStatusCode());
         assertNotNull(httpResponse.getResponseAsString());
         log.info(httpResponse.getResponseAsString());
@@ -41,7 +42,8 @@ class HttpClientBuilderTest {
     void getJsonObject() throws HttpRequestException {
         HttpClientAgent clientAgent = new HttpClientBuilder()
                 .build();
-        HttpResponse httpResponse = clientAgent.get("https://api.twitter.com/1/statuses/oembed.json", new HttpParameter[]{new HttpParameter("id", "1424535306225831944")}, null, null);
+        HttpParameter[] httpParameters =  new HttpParameter[]{new HttpParameter("id", "1424535306225831944")};
+        HttpResponse httpResponse = clientAgent.get("https://api.twitter.com/1/statuses/oembed.json", httpParameters , null, null);
         assertEquals(200, httpResponse.getStatusCode());
         assertNotNull(httpResponse.asJsonObject());
         JsonObject jsonObject = httpResponse.asJsonObject();
