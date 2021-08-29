@@ -1,5 +1,3 @@
-![build](https://github.com/metao1/graalvm-microservice-demo/actions/workflows/<WORKFLOW_FILE>/badge.svg)
-
 # Graalvm Microservice Demo
 
 # JDK 16, Gradle Spring Boot native, Quarkus native image using Docker and container microservice
