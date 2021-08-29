@@ -31,6 +31,20 @@ public class JsonObject {
         nameValuePairs = new LinkedHashMap<>();
     }
 
+    public JsonObject(JsonTokenizer jsonTokenizer) throws RuntimeException {
+        Object value = jsonTokenizer.nextValue();
+        if (value instanceof JsonObject jsonObject) {
+            this.nameValuePairs = jsonObject.nameValuePairs;
+        } else {
+            throw new JsonException("type mis-matched");
+        }
+    }
+
+    public JsonObject(String string) throws JsonException {
+        this(new JsonTokenizer(string));
+
+    }
+
     public void put(String name, Object value) {
         nameValuePairs.putIfAbsent(checkNameNullability(name), value);
     }
@@ -40,8 +54,14 @@ public class JsonObject {
     }
 
     @Override
-    public String toString() {
+    public String toString() throws JsonException{
         JsonStringParser stringJson = new JsonStringParser();
+        writeTo(stringJson);
+        return stringJson.toString();
+    }
+
+    public String toString(int indentSpaces) throws JsonException {
+        JsonStringParser stringJson = new JsonStringParser(indentSpaces);
         writeTo(stringJson);
         return stringJson.toString();
     }

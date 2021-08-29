@@ -37,7 +37,7 @@ public final class HttpClientAgent extends HttpClientBase {
     }
 
     @Override
-    protected HttpResponse handleRequest(HttpRequest req) {
+    protected HttpResponse handleRequest(HttpRequest req) throws HttpRequestException {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(req.getUrl());
         requestBuilder.headers(getHeaders(req));
@@ -48,11 +48,13 @@ public final class HttpClientAgent extends HttpClientBase {
         }
         Request request = requestBuilder.build();
         Call call = okHttpClient.newCall(request);
-        OkHttpResponse res = null;
+        final OkHttpResponse res;
+        int responseCode = -1;
         try {
             res = new OkHttpResponse(call, okHttpClient);
+            responseCode = res.getStatusCode();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new HttpRequestException(e.getMessage(), e, responseCode);
         }
 
         return res;

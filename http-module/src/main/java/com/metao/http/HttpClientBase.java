@@ -15,8 +15,8 @@ public abstract class HttpClientBase implements HttpClient {
     protected HttpClientBase() {
         this.reqHeaders = new HashMap<>();
         this.resHeaders = new LinkedHashMap<>();
-        this.reqHeaders.put("X-Twitter-Client-Version", Version.getVersion());
-        this.reqHeaders.put("X-Twitter-Client", Version.getClient());
+        this.reqHeaders.put("X-Http-Client-Version", Version.getVersion());
+        this.reqHeaders.put("X-Http-Client", Version.getClient());
     }
 
     @Override
@@ -36,38 +36,44 @@ public abstract class HttpClientBase implements HttpClient {
     }
 
     @Override
-    public HttpResponse request(HttpRequest req, HttpResponseListener listener) {
-        HttpResponse res = handleRequest(req);
-        if (listener != null) {
-            listener.onResponse(ResponseEvent.createResponseEvent(req, res));
+    public final HttpResponse request(HttpRequest req, HttpResponseListener listener) throws HttpRequestException {
+        final HttpResponse res;
+        try {
+            res = handleRequest(req);
+            if (listener != null) {
+                listener.onResponse(ResponseEvent.createResponseEvent(req, res));
+            }
+            return res;
+        } catch (HttpRequestException e) {
+            listener.onResponse(ResponseEvent.createResponseEvent(req, null, e));
+            throw e;
         }
-        return res;
     }
 
     @Override
-    public HttpResponse request(HttpRequest req) {
+    public final HttpResponse request(HttpRequest req) throws HttpRequestException {
         return handleRequest(req);
     }
 
     @Override
-    public HttpResponse post(String url) {
+    public HttpResponse post(String url) throws HttpRequestException {
         return request(new HttpRequest(url, RequestMethod.POST, null, this.reqHeaders, null));
     }
 
     @Override
-    public HttpResponse post(String url, HttpParameter[] params, Authorization auth, HttpResponseListener listener) {
+    public HttpResponse post(String url, HttpParameter[] params, Authorization auth, HttpResponseListener listener) throws HttpRequestException {
         return request(new HttpRequest(url, RequestMethod.POST, params, this.reqHeaders, auth), listener);
     }
 
     @Override
-    public HttpResponse get(String url) {
+    public HttpResponse get(String url) throws HttpRequestException {
         return request(new HttpRequest(url, RequestMethod.GET, null, this.reqHeaders, null));
     }
 
     @Override
-    public HttpResponse get(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener) {
+    public HttpResponse get(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener) throws HttpRequestException {
         return request(new HttpRequest(url, RequestMethod.GET, params, reqHeaders, authorization), listener);
     }
 
-    protected abstract HttpResponse handleRequest(HttpRequest req);
+    protected abstract HttpResponse handleRequest(HttpRequest req) throws HttpRequestException;
 }

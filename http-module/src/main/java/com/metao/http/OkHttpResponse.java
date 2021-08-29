@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import okhttp3.*;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,15 +16,16 @@ public class OkHttpResponse extends HttpResponse {
     private final OkHttpClient okHttpClient;
     private final Call call;
     private final Response response;
-    private InputStream is;
     private Map<String, List<String>> headerFields;
 
     public OkHttpResponse(Call call, OkHttpClient okHttpClient) throws IOException {
         super();
+        this.headerFields = new HashMap<>();
         this.okHttpClient = okHttpClient;
         this.call = call;
         this.response = call.execute();
         this.statusCode = response.code();
+        this.protocol = response.protocol();
         storeResponseHeaders();
         storeResponseBody();
     }
@@ -38,10 +39,10 @@ public class OkHttpResponse extends HttpResponse {
     protected void storeResponseBody() {
         ResponseBody body = response.body();
         if (body != null) {
-            is = body.byteStream();
+            stream = body.byteStream();
             String compressHeaderValue = response.header("Content-Encoding");
             if (compressHeaderValue != null && compressHeaderValue.equals("gzip")) {
-                is = new StreamingGZIPInputStream(is);
+                stream = new StreamingGZIPInputStream(stream);
             }
         }
     }

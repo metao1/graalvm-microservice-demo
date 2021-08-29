@@ -30,7 +30,7 @@ public class JsonStringParser {
     }
 
     public JsonStringParser startObject() {
-        return open(JsonScope.EMPTY, "{");
+        return open(JsonScope.EMPTY_OBJ, "{");
     }
 
     JsonStringParser open(JsonScope empty, String openChar) {
@@ -61,7 +61,6 @@ public class JsonStringParser {
         for (int i = 0; i < val.length(); i++) {
             char c = val.charAt(i);
             switch (c) {
-                case '"':
                 case '\\':
                 case '/':
                     output.append('\\').append(c);
@@ -86,6 +85,7 @@ public class JsonStringParser {
                     }
             }
         }
+        output.append("\"");
     }
 
     private void beforeValue() {
@@ -96,8 +96,6 @@ public class JsonStringParser {
         if (scope == JsonScope.DANGLING_KEY) {
             output.append(intent != null ? ": " : ":");
             replaceTopStack(JsonScope.NON_EMPTY_OBJ);
-        } else if (scope != JsonScope.NULL) {
-            throw new JsonException("nesting problem.");
         }
     }
 
@@ -106,7 +104,7 @@ public class JsonStringParser {
         if (scope == JsonScope.NON_EMPTY_OBJ) {
             output.append(',');
         } else if (scope != JsonScope.EMPTY_OBJ) {
-            throw new JsonException("nesting problem.");
+            throw new JsonException("nesting problem. scope:" + scope);
         }
         newLine();
         replaceTopStack(JsonScope.DANGLING_KEY);
@@ -125,14 +123,14 @@ public class JsonStringParser {
     }
 
     private JsonScope peek() {
-        return scopeStack.peek();
+        return !scopeStack.isEmpty() ? scopeStack.peek() : null;
     }
 
     public JsonStringParser value(Object obj) {
         if (scopeStack.isEmpty()) {
             throw new JsonException("nesting problem");
         }
-        if (obj instanceof JsonObject) {
+        if (obj instanceof JsonObject && obj != JsonObject.NULL) {
             ((JsonObject) obj).writeTo(this);
         }
         beforeValue();

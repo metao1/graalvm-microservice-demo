@@ -4,19 +4,19 @@ import java.util.Map;
 
 public interface HttpClient {
 
-    public void defaultRequestHeaders(RequestHeader... reqHeaders);
+    void defaultRequestHeaders(RequestHeader... reqHeaders);
 
-    public Map<String, String> getRequestHeaders();
+    Map<String, String> getRequestHeaders();
 
-    public HttpResponse request(HttpRequest req, HttpResponseListener httpResponseListener);
+    HttpResponse request(HttpRequest req, HttpResponseListener httpResponseListener) throws HttpRequestException;
 
-    public HttpResponse request(HttpRequest req);
+    HttpResponse request(HttpRequest req) throws HttpRequestException;
 
-    public HttpResponse get(String url);
+    HttpResponse get(String url) throws HttpRequestException;
 
-    public HttpResponse get(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener);
+    HttpResponse get(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener) throws HttpRequestException;
 
-    public HttpResponse post(String url);
+    HttpResponse post(String url) throws HttpRequestException;
 
-    public HttpResponse post(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener);
+    HttpResponse post(String url, HttpParameter[] params, Authorization authorization, HttpResponseListener listener) throws HttpRequestException;
 }
