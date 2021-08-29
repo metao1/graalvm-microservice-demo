@@ -1,4 +1,7 @@
-package com.metao.http;
+package com.metao.http.model.response;
+
+import com.metao.http.exception.HttpRequestException;
+import com.metao.http.model.request.HttpRequest;
 
 public class ResponseEvent {
     private final HttpRequest req;

@@ -1,4 +1,4 @@
-package com.metao.http;
+package com.metao.http.exception;
 
 public class HttpRequestException extends Exception {
     private int statusCode;

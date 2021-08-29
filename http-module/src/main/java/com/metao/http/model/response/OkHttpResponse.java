@@ -1,5 +1,7 @@
-package com.metao.http;
+package com.metao.http.model.response;
 
+import com.metao.http.model.response.HttpResponse;
+import com.metao.http.service.StreamingGZIPInputStream;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import okhttp3.*;

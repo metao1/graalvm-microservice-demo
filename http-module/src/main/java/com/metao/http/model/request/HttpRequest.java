@@ -1,6 +1,8 @@
-package com.metao.http;
+package com.metao.http.model.request;
 
 
+import com.metao.http.model.http.HttpParameter;
+import com.metao.http.service.Authorization;
 import lombok.Data;
 
 import java.io.Serial;

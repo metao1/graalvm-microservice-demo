@@ -1,14 +1,12 @@
 package com.metao.http.utils;
 
-import com.metao.http.HttpParameter;
-import com.metao.http.JsonException;
-import com.metao.http.JsonObject;
+import com.metao.http.model.http.HttpParameter;
+import com.metao.http.exception.JsonException;
+import com.metao.http.model.http.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.Okio;
-import okio.Source;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

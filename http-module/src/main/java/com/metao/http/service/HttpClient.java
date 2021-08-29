@@ -1,4 +1,10 @@
-package com.metao.http;
+package com.metao.http.service;
+
+import com.metao.http.exception.HttpRequestException;
+import com.metao.http.model.http.HttpParameter;
+import com.metao.http.model.request.HttpRequest;
+import com.metao.http.model.response.HttpResponse;
+import com.metao.http.model.request.RequestHeader;
 
 import java.util.Map;
 

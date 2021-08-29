@@ -1,4 +1,4 @@
-package com.metao.http;
+package com.metao.http.utils;
 
 public class Version {
 

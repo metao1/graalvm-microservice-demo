@@ -1,6 +1,8 @@
-package com.metao.http;
+package com.metao.http.service;
 
-public class OAuth2Authorization implements Authorization{
+import com.metao.http.model.request.HttpRequest;
+
+public class OAuth2Authorization implements Authorization {
 
     @Override
     public String getAuthorizationHeader(HttpRequest req) {

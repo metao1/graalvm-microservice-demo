@@ -1,5 +1,8 @@
-package com.metao.http;
+package com.metao.http.model.response;
 
+import com.metao.http.exception.JsonException;
+import com.metao.http.exception.HttpRequestException;
+import com.metao.http.model.http.JsonObject;
 import okhttp3.Protocol;
 
 import java.io.BufferedReader;
