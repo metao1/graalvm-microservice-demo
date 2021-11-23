@@ -7,6 +7,7 @@ import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.WindowDefinition;
 import com.metao.graalvm.twitter.processor.utils.KafkaUtils;
 import com.metao.graalvm.twitter.processor.config.KafkaTurboConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -47,18 +48,24 @@ public class TwitterKafkaConnector {
         final Pipeline pipeline = Pipeline.create();
         final String consumerTopic = kafkaTurboConfiguration.getConsumer().getTopic().getName();
         final String producerTopic = kafkaTurboConfiguration.getProducer().getTopic().getName();
-        pipeline.readFrom(KafkaSources.kafka(jet.getConfig().getProperties(),
-                        KafkaUtils::mapToHazelcastJsonValue, consumerTopic))
-                .withNativeTimestamps(0)
-                .peek()
-                .filter(Objects::nonNull)
-                .map(Map.Entry::getValue)
-                .writeTo(KafkaSinks.kafka(loadKafkaProps(), producerTopic, HazelcastJsonValue::toString, HazelcastJsonValue::toString));
+        extracted(pipeline, consumerTopic, producerTopic);
         try {
             jet.newJob(pipeline).join();
         } catch (Exception ex) {
             log.warn(ex.getLocalizedMessage());
         }
+    }
+
+    private void extracted(Pipeline pipeline, String consumerTopic, String producerTopic) {
+        pipeline.readFrom(KafkaSources.kafka(jet.getConfig().getProperties(),
+                        KafkaUtils::mapToHazelcastJsonValue, consumerTopic))
+                .withNativeTimestamps(0)
+                .window(WindowDefinition.session(10000))
+                .streamStage()
+                .peek()
+                .filter(Objects::nonNull)
+                .map(Map.Entry::getValue)
+                .writeTo(KafkaSinks.kafka(loadKafkaProps(), producerTopic, HazelcastJsonValue::toString, HazelcastJsonValue::toString));
     }
 
     private Properties loadKafkaProps() {

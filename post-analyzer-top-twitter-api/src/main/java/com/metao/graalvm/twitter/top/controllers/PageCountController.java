@@ -1,6 +1,7 @@
 package com.metao.graalvm.twitter.top.controllers;
 
 import com.metao.graalvm.twitter.top.components.PostCountComponent;
+import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -34,10 +35,9 @@ public class PageCountController {
     }
 
     @Timed
+    @Counted("count")
     @GetMapping("/counts")
     public Map<Long, Set<String>> count() {
-        visitCounter.increment();
-        meterRegistry.counter("visit_counter", String.format(visitCounter.count() + "", ""));
         ReadOnlyKeyValueStore<String, Long> queryableStore = interactiveQueryService
                 .getQueryableStore(PostCountComponent.POST_COUNT, QueryableStoreTypes.keyValueStore());
         KeyValueIterator<String, Long> allKeyValues = queryableStore.all();
